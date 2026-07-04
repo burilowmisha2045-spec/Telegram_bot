@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Запись на массаж</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFDF7;
+    --surface:#FFFFFF;
+    --surface-soft:#FFF7E0;
+    --yellow:#F2B705;
+    --yellow-deep:#D99A00;
+    --yellow-soft:#FDECAF;
+    --yellow-pale:#FFF3CC;
+    --ink:#2A2A22;
+    --ink-soft:#726E5C;
+    --gray-booked:#E7E4DA;
+    --gray-text:#A6A28E;
+    --line:#ECE4C8;
+    --radius-lg:22px;
+    --radius-md:14px;
+    --shadow-soft: 0 6px 24px rgba(42,42,34,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  h1,h2,h3{font-family:'Manrope', sans-serif;letter-spacing:-0.01em;margin:0;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:linear-gradient(180deg, var(--surface-soft) 0%, var(--bg) 100%);
+    padding:36px 0 28px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-inner{display:flex;gap:20px;align-items:center;}
+  .avatar{
+    width:96px;height:96px;border-radius:50%;flex:none;
+    background:var(--yellow-soft);
+    border:3px solid var(--yellow);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow-soft);
+    overflow:hidden;
+  }
+  .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+  .avatar svg{width:52px;height:52px;}
+  .hero-text h1{font-size:23px;font-weight:800;}
+  .hero-role{font-size:13px;color:var(--yellow-deep);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;}
+  .hero-desc{margin-top:10px;font-size:14.5px;line-height:1.55;color:var(--ink-soft);}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .chip{
+    background:var(--surface);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-size:12.5px;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:999px;
+  }
+
+  /* ---------- CONTACTS ---------- */
+  .contacts{padding:20px 0;display:flex;gap:12px;flex-wrap:wrap;}
+  .contact-btn{
+    display:flex;align-items:center;gap:9px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    padding:11px 16px;
+    border-radius:999px;
+    text-decoration:none;
+    color:var(--ink);
+    font-weight:600;
+    font-size:14px;
+    box-shadow:var(--shadow-soft);
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .contact-btn:hover{border-color:var(--yellow);transform:translateY(-1px);}
+  .contact-btn svg{width:18px;height:18px;flex:none;}
+  .contact-btn.primary{background:var(--yellow);border-color:var(--yellow);}
+  .contact-btn.primary:hover{background:var(--yellow-deep);}
+
+  /* ---------- PULSE DIVIDER (signature element) ---------- */
+  .pulse{width:100%;height:34px;margin:6px 0 8px;}
+  .pulse path{
+    fill:none;
+    stroke:var(--yellow);
+    stroke-width:2.4;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+
+  /* ---------- CALENDAR ---------- */
+  .cal-section{padding:8px 0 10px;}
+  .cal-title{font-size:19px;font-weight:800;margin-bottom:2px;}
+  .cal-sub{font-size:13.5px;color:var(--ink-soft);margin-bottom:18px;}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .cal-nav .month-label{font-weight:700;font-size:16px;text-transform:capitalize;}
+  .nav-btn{
+    width:34px;height:34px;border-radius:50%;
+    border:1px solid var(--line);background:var(--surface);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    color:var(--ink);
+  }
+  .nav-btn:hover{border-color:var(--yellow);}
+  .nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+  .weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;}
+  .weekdays span{text-align:center;font-size:11.5px;color:var(--gray-text);font-weight:600;text-transform:uppercase;}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .day{
+    aspect-ratio:1/0.92;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:13.5px;
+    font-weight:600;
+    position:relative;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .day:hover:not(.day-disabled):not(.day-full){border-color:var(--yellow);}
+  .day.day-outside{opacity:0;pointer-events:none;}
+  .day.day-disabled{color:var(--gray-text);background:var(--bg);cursor:not-allowed;border-style:dashed;}
+  .day.day-full{background:var(--gray-booked);color:var(--gray-text);cursor:not-allowed;}
+  .day.day-selected{border-color:var(--yellow);background:var(--yellow-pale);}
+  .day.day-today .daynum{position:relative;}
+  .day.day-today .daynum::after{
+    content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
+    width:4px;height:4px;border-radius:50%;background:var(--yellow-deep);
+  }
+  .day-dot{width:5px;height:5px;border-radius:50%;background:var(--yellow-deep);margin-top:3px;}
+  .day-full .day-dot{display:none;}
+
+  /* ---------- SLOTS PANEL ---------- */
+  .slots-panel{
+    margin-top:20px;
+    padding:18px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-soft);
+  }
+  .slots-panel h3{font-size:15px;font-weight:700;margin-bottom:3px;}
+  .slots-panel .slots-date{font-size:13px;color:var(--ink-soft);margin-bottom:14px;}
+  .slots-list{display:flex;flex-wrap:wrap;gap:10px;}
+  .slot-empty-msg{font-size:13.5px;color:var(--ink-soft);}
+
+  /* capsule / pill slot — signature detail referencing a medicine capsule */
+  .capsule{
+    --split:50%;
+    position:relative;
+    width:104px;height:40px;
+    border-radius:999px;
+    border:1.5px solid var(--yellow-deep);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    overflow:hidden;
+    background:linear-gradient(90deg, #ffffff 0 var(--split), var(--yellow-soft) var(--split) 100%);
+  }
+  .capsule::before{
+    content:"";position:absolute;left:var(--split);top:0;bottom:0;width:1px;
+    background:var(--yellow-deep);opacity:.6;
+  }
+  .capsule span{
+    position:relative;z-index:1;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;font-weight:600;color:var(--ink);
+  }
+  .capsule:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(217,154,0,0.18);}
+  .capsule.taken{
+    background:var(--gray-booked);
+    border-color:var(--line);
+    cursor:not-allowed;
+  }
+  .capsule.taken::before{display:none;}
+  .capsule.taken span{color:var(--gray-text);}
+  .capsule.mine{
+    background:var(--yellow);
+    border-color:var(--yellow-deep);
+    cursor:pointer;
+  }
+  .capsule.mine::before{display:none;}
+  .capsule.mine span{color:var(--ink);}
+  .capsule.mine::after{
+    content:"вы";
+    position:absolute;top:-8px;right:-2px;
+    background:var(--ink);color:#fff;
+    font-size:9px;font-weight:700;
+    padding:2px 6px;border-radius:999px;
+    font-family:'IBM Plex Sans',sans-serif;
+  }
+
+  /* ---------- MODAL ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(42,42,34,0.45);
+    display:none;align-items:flex-end;justify-content:center;
+    z-index:50;
+  }
+  .overlay.open{display:flex;}
+  @media (min-width:640px){ .overlay{align-items:center;} }
+  .modal{
+    background:var(--surface);
+    width:100%;max-width:460px;
+    border-radius:24px 24px 0 0;
+    padding:26px 22px 24px;
+    max-height:88vh;overflow-y:auto;
+    box-shadow:0 -8px 30px rgba(0,0,0,0.15);
+    position:relative;
+  }
+  @media (min-width:640px){ .modal{border-radius:22px;} }
+
+  /* centered modal variant (used for the time-slot picker) */
+  .overlay-center{ align-items:center; }
+  .modal-rounded{ border-radius:22px !important; box-shadow:0 20px 50px rgba(42,42,34,0.2); }
+  .modal-close{
+    position:absolute;top:14px;right:14px;
+    width:30px;height:30px;border-radius:50%;
+    border:1px solid var(--line);background:var(--bg);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--ink-soft);font-size:16px;line-height:1;
+  }
+  .modal-close:hover{border-color:var(--yellow);color:var(--ink);}
+  .modal h3{font-size:18px;font-weight:800;margin-bottom:4px;}
+  .modal .modal-sub{font-size:13.5px;color:var(--ink-soft);margin-bottom:18px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);}
+  .field textarea, .field input, .field select{
+    width:100%;
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:11px 13px;
+    font-size:14px;
+    font-family:'IBM Plex Sans',sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  .field textarea{resize:vertical;min-height:70px;}
+  .field textarea:focus,.field input:focus,.field select:focus{outline:2px solid var(--yellow);outline-offset:1px;}
+  .gender-row{display:flex;gap:8px;}
+  .gender-opt{
+    flex:1;text-align:center;padding:10px 6px;border-radius:12px;
+    border:1.5px solid var(--line);cursor:pointer;font-size:13.5px;font-weight:600;
+    background:var(--bg);
+  }
+  .gender-opt.active{border-color:var(--yellow-deep);background:var(--yellow-soft);}
+  .price-box{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--yellow-pale);
+    border:1px solid var(--yellow-soft);
+    border-radius:14px;
+    padding:14px 16px;
+    margin:18px 0;
+  }
+  .price-box .label{font-size:13px;color:var(--ink-soft);}
+  .price-box .amount{font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:700;}
+  .modal-actions{display:flex;gap:10px;margin-top:6px;}
+  .btn{
+    flex:1;padding:13px;border-radius:14px;border:none;
+    font-weight:700;font-size:14.5px;cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif;
+  }
+  .btn-secondary{background:var(--bg);border:1.5px solid var(--line);color:var(--ink);}
+  .btn-primary{background:var(--yellow);color:var(--ink);}
+  .btn-primary:hover{background:var(--yellow-deep);}
+  .btn-danger{background:#fff;border:1.5px solid #d99a9a;color:#a13a3a;}
+  .error-text{color:#a13a3a;font-size:12.5px;margin-top:4px;display:none;}
+  .field.invalid textarea,.field.invalid input,.field.invalid select{border-color:#d99a9a;}
+  .field.invalid .error-text{display:block;}
+
+  .my-detail-row{display:flex;justify-content:space-between;font-size:13.5px;padding:9px 0;border-bottom:1px dashed var(--line);}
+  .my-detail-row span:first-child{color:var(--ink-soft);}
+  .my-detail-row span:last-child{font-weight:600;text-align:right;max-width:60%;}
+
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;
+    font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;
+    transition:all .25s ease;z-index:80;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .loading-note{font-size:13px;color:var(--gray-text);text-align:center;padding:20px 0;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="avatar" id="avatarBox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#D99A00" stroke-width="1.6"><path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12Z"/><path d="M4 21.5c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+      </div>
+      <div class="hero-text">
+        <h1 id="masterName">Дмитрий Олегович</h1>
+        <div class="hero-role">Массажист · медицинский и спортивный массаж</div>
+        <p class="hero-desc" id="masterDesc">Работаю с болью в спине и шее, восстановлением после травм, мышечными зажимами
+          и общим расслаблением. Индивидуально подбираю технику под ваш запрос - от глубокой проработки до мягкого релакса.</p>
+        <div class="chips" id="specChips"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONTACTS ================= -->
+  <section class="contacts" id="contacts"></section>
+
+  <!-- signature pulse divider -->
+  <svg class="pulse" viewBox="0 0 400 34" preserveAspectRatio="none">
+    <path d="M0 17 H140 L155 4 L170 30 L185 17 H400" />
+  </svg>
+
+  <!-- ================= CALENDAR ================= -->
+  <section class="cal-section">
+    <div class="cal-title">Запись на приём</div>
+    <div class="cal-sub">Выберите свободный день, затем удобное время.</div>
+
+    <div class="cal-nav">
+      <button class="nav-btn" id="prevMonth" aria-label="Предыдущий месяц">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="month-label" id="monthLabel">Июль 2026</div>
+      <button class="nav-btn" id="nextMonth" aria-label="Следующий месяц">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="weekdays">
+      <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+    </div>
+    <div class="grid" id="calGrid"></div>
+  </section>
+
+</div>
+
+<!-- ================= TIME SLOTS MODAL ================= -->
+<div class="overlay overlay-center" id="slotsOverlay">
+  <div class="modal modal-rounded" id="slotsModalBox">
+    <button class="modal-close" id="closeSlotsModal" aria-label="Закрыть">×</button>
+    <h3>Время приёма</h3>
+    <div class="modal-sub" id="slotsDateLabel">21 июля</div>
+    <div class="slots-list" id="slotsListBox"></div>
+  </div>
+</div>
+
+<!-- ================= BOOKING MODAL ================= -->
+<div class="overlay" id="bookOverlay">
+  <div class="modal">
+    <h3>Детали записи</h3>
+    <div class="modal-sub" id="bookSubtitle">4 июля, 12:00–13:00</div>
+
+    <div class="field" id="fProblem">
+      <label>Опишите проблему</label>
+      <textarea id="inputProblem" placeholder="Например: тянущая боль в пояснице после тренировок"></textarea>
+      <div class="error-text">Пожалуйста, опишите проблему</div>
+    </div>
+
+    <div class="field" id="fGender">
+      <label>Пол</label>
+      <div class="gender-row" id="genderRow">
+        <div class="gender-opt" data-val="Женский">Женский</div>
+        <div class="gender-opt" data-val="Мужской">Мужской</div>
+      </div>
+      <div class="error-text">Выберите вариант</div>
+    </div>
+
+    <div class="field" id="fAge">
+      <label>Возраст</label>
+      <input type="number" id="inputAge" min="1" max="120" placeholder="Ваш возраст">
+      <div class="error-text">Укажите возраст</div>
+    </div>
+
+    <div class="price-box">
+      <div class="label">К оплате за сеанс</div>
+      <div class="amount mono" id="priceLabel">2500 ₽</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="cancelBook">Отмена</button>
+      <button class="btn btn-primary" id="confirmBook">Записаться</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MY BOOKING MODAL ================= -->
+<div class="overlay" id="myOverlay">
+  <div class="modal">
+    <h3>Ваша запись</h3>
+    <div class="modal-sub" id="mySubtitle">4 июля, 12:00–13:00</div>
+
+    <div id="myDetails"></div>
+
+    <div class="price-box">
+      <div class="label">К оплате за сеанс</div>
+      <div class="amount mono" id="myPriceLabel">2500 ₽</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="closeMy">Закрыть</button>
+      <button class="btn btn-danger" id="cancelMyBooking">Отменить запись</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+
+  /* =========================================================
+     CONFIG — здесь легко поменять данные под себя
+  ========================================================= */
+  const CONFIG = {
+    name: "Дмитрий Олегович",
+    description: "Работаю с болью в спине и шее, восстановлением после травм, мышечными зажимами и общим расслаблением. Индивидуально подбираю технику под ваш запрос — от глубокой проработки до мягкого релакса.",
+    specialties: ["Спина и шея", "Спортивные травмы", "Реабилитация", "Релакс-массаж", "Работа с зажимами"],
+    phone: "+7 991 922 2756",
+    telegram: "https://t.me/krasovskiy_dmitriy",
+    price: 2500,
+    // рабочее время в минутах от начала суток
+    startMin: 12*60,      // 12:00
+    endMin: 20*60+30,      // 20:30 — последний сеанс должен закончиться до этого времени
+    sessionMin: 60,        // длительность сеанса
+    gapMin: 15,            // перерыв между сеансами
+    offWeekdays: []        // выходные дни недели, 0=Вс,1=Пн,...6=Сб. Например [0] — воскресенье выходной
+  };
+
+  /* =========================================================
+     STATE
+  ========================================================= */
+  let clientId = null;
+  let bookings = {};        // { "YYYY-MM-DD_HH:MM": {clientId, problem, gender, age, price, createdAt} }
+  let storageOk = true;
+  let viewYear, viewMonth;  // текущий отображаемый месяц (0-индекс month)
+  let selectedDate = null;  // "YYYY-MM-DD"
+  let pendingSlot = null;   // {date, start, end} для модалки записи
+  let openMyKey = null;     // ключ открытой "моей" записи
+
+  const todayObj = new Date();
+  todayObj.setHours(0,0,0,0);
+
+  const MONTHS = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+  const MONTHS_NOM = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+
+  viewYear = todayObj.getFullYear();
+  viewMonth = todayObj.getMonth();
+
+  /* =========================================================
+     HELPERS
+  ========================================================= */
+  function pad(n){ return n<10 ? "0"+n : ""+n; }
+  function dateKey(y,m,d){ return y+"-"+pad(m+1)+"-"+pad(d); }
+  function minutesToLabel(m){
+    const h = Math.floor(m/60), mi = m%60;
+    return pad(h)+":"+pad(mi);
+  }
+  function genSlots(){
+    const slots = [];
+    let t = CONFIG.startMin;
+    while (t + CONFIG.sessionMin <= CONFIG.endMin){
+      slots.push({ start:t, end:t+CONFIG.sessionMin });
+      t += CONFIG.sessionMin + CONFIG.gapMin;
+    }
+    return slots;
+  }
+  const SLOTS = genSlots();
+
+  function uid(){
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'c-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 2400);
+  }
+
+  /* =========================================================
+     STORAGE
+  ========================================================= */
+  async function initClientId(){
+    try{
+      const res = await window.storage.get('client-id', false);
+      if (res && res.value){ clientId = res.value; return; }
+    }catch(e){ /* not found or error, fall through */ }
+    clientId = uid();
+    try{ await window.storage.set('client-id', clientId, false); }catch(e){ storageOk = false; }
+  }
+
+  async function loadBookings(){
+    try{
+      const res = await window.storage.get('bookings', true);
+      if (res && res.value){ bookings = JSON.parse(res.value); }
+      else { bookings = {}; }
+    }catch(e){
+      bookings = {};
+    }
+  }
+
+  async function saveBookings(){
+    try{
+      const r = await window.storage.set('bookings', JSON.stringify(bookings), true);
+      if (!r){ storageOk = false; }
+    }catch(e){
+      storageOk = false;
+      showToast('Не удалось сохранить запись, попробуйте еще раз');
+    }
+  }
+
+  /* =========================================================
+     RENDER: HERO / CONTACTS
+  ========================================================= */
+  function renderStatic(){
+    document.getElementById('masterName').textContent = CONFIG.name;
+    document.getElementById('masterDesc').textContent = CONFIG.description;
+    document.getElementById('priceLabel').textContent = CONFIG.price + " ₽";
+    document.getElementById('myPriceLabel').textContent = CONFIG.price + " ₽";
+
+    const chipsBox = document.getElementById('specChips');
+    chipsBox.innerHTML = CONFIG.specialties.map(s=>`<span class="chip">${s}</span>`).join('');
+
+    const contacts = document.getElementById('contacts');
+    contacts.innerHTML = `
+      <a class="contact-btn primary" href="${CONFIG.telegram}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2A2A22" stroke-width="1.8"><path d="M21 4 3 11l6 2 2 6 3-4 5 4 2-15Z"/></svg>
+        Написать в Telegram
+      </a>
+      <a class="contact-btn" href="tel:${CONFIG.phone.replace(/[^+\\d]/g,'')}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2A2A22" stroke-width="1.8"><path d="M6 3h3l2 5-2 2c1 3 3 5 6 6l2-2 5 2v3c0 1-1 2-2 2-9 0-16-7-16-16 0-1 1-2 2-2Z"/></svg>
+        ${CONFIG.phone}
+      </a>
+    `;
+  }
+
+  /* =========================================================
+     RENDER: CALENDAR
+  ========================================================= */
+  function dayStatus(y,m,d){
+    // -1 disabled(past), 0 full(occupied), 1 free
+    const dObj = new Date(y,m,d); dObj.setHours(0,0,0,0);
+    if (dObj < todayObj) return -1;
+    const wd = dObj.getDay();
+    if (CONFIG.offWeekdays.includes(wd)) return -1;
+    const key = dateKey(y,m,d);
+    const isToday = dObj.getTime() === todayObj.getTime();
+    let freeCount = 0;
+    for (const s of SLOTS){
+      if (isToday && s.start <= (todayObj.getHours()*60+todayObj.getMinutes())) continue; // прошедшее время сегодня считаем недоступным
+      const k = key+"_"+minutesToLabel(s.start);
+      if (!bookings[k]) freeCount++;
+    }
+    return freeCount > 0 ? 1 : 0;
+  }
+
+  function renderCalendar(){
+    document.getElementById('monthLabel').textContent = MONTHS_NOM[viewMonth] + " " + viewYear;
+
+    const first = new Date(viewYear, viewMonth, 1);
+    let startOffset = first.getDay(); // 0=Sun
+    startOffset = (startOffset === 0) ? 6 : startOffset - 1; // сделать Пн=0
+    const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    for (let i=0;i<startOffset;i++){
+      const cell = document.createElement('div');
+      cell.className = 'day day-outside';
+      grid.appendChild(cell);
+    }
+
+    for (let d=1; d<=daysInMonth; d++){
+      const status = dayStatus(viewYear, viewMonth, d);
+      const key = dateKey(viewYear, viewMonth, d);
+      const cell = document.createElement('div');
+      cell.className = 'day';
+      const dObj = new Date(viewYear, viewMonth, d); dObj.setHours(0,0,0,0);
+      if (dObj.getTime() === todayObj.getTime()) cell.classList.add('day-today');
+      if (status === -1) cell.classList.add('day-disabled');
+      if (status === 0) cell.classList.add('day-full');
+      if (selectedDate === key) cell.classList.add('day-selected');
+
+      cell.innerHTML = `<div class="daynum">${d}</div>` + (status===1 ? `<div class="day-dot"></div>` : '');
+
+      if (status !== -1 && status !== 0){
+        cell.addEventListener('click', ()=>{ selectedDate = key; renderCalendar(); openSlotsModal(key); });
+      } else if (status === 0){
+        cell.addEventListener('click', ()=>{ showToast('На этот день все места заняты'); });
+      }
+      grid.appendChild(cell);
+    }
+
+    // prev/next enable state
+    const prevBtn = document.getElementById('prevMonth');
+    const isCurrentMonth = (viewYear===todayObj.getFullYear() && viewMonth===todayObj.getMonth());
+    prevBtn.disabled = isCurrentMonth;
+  }
+
+  function openSlotsModal(dateKey){
+    const [y,m,d] = dateKey.split('-').map(Number);
+    const isToday = (y===todayObj.getFullYear() && (m-1)===todayObj.getMonth() && d===todayObj.getDate());
+    const nowMin = todayObj.getHours()*60 + todayObj.getMinutes();
+
+    const dateLabel = d + " " + MONTHS[m-1] + (y!==todayObj.getFullYear() ? ", "+y : "");
+    document.getElementById('slotsDateLabel').textContent = dateLabel;
+
+    let chips = '';
+    let anyVisible = false;
+    for (const s of SLOTS){
+      if (isToday && s.start <= nowMin) continue;
+      anyVisible = true;
+      const k = dateKey + "_" + minutesToLabel(s.start);
+      const b = bookings[k];
+      const label = minutesToLabel(s.start) + "–" + minutesToLabel(s.end);
+      if (!b){
+        chips += `<div class="capsule" data-key="${k}" data-kind="free"><span>${label}</span></div>`;
+      } else if (b.clientId === clientId){
+        chips += `<div class="capsule mine" data-key="${k}" data-kind="mine"><span>${label}</span></div>`;
+      } else {
+        chips += `<div class="capsule taken" data-key="${k}" data-kind="taken" title="Занято"><span>${label}</span></div>`;
+      }
+    }
+
+    const listBox = document.getElementById('slotsListBox');
+    listBox.innerHTML = anyVisible ? chips : '<div class="slot-empty-msg">На сегодня свободного времени больше нет</div>';
+
+    listBox.querySelectorAll('.capsule').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const key = el.getAttribute('data-key');
+        const kind = el.getAttribute('data-kind');
+        if (kind === 'free'){ closeSlotsModal(); openBookingModal(key); }
+        else if (kind === 'mine'){ closeSlotsModal(); openMyBookingModal(key); }
+      });
+    });
+
+    document.getElementById('slotsOverlay').classList.add('open');
+  }
+
+  function closeSlotsModal(){
+    document.getElementById('slotsOverlay').classList.remove('open');
+    selectedDate = null;
+    renderCalendar();
+  }
+
+  document.getElementById('closeSlotsModal').addEventListener('click', closeSlotsModal);
+  document.getElementById('slotsOverlay').addEventListener('click', (e)=>{
+    if (e.target.id === 'slotsOverlay') closeSlotsModal();
+  });
+
+  /* =========================================================
+     BOOKING MODAL
+  ========================================================= */
+  let selectedGender = null;
+
+  function keyToLabel(key){
+    const [datePart, timePart] = key.split('_');
+    const [y,m,d] = datePart.split('-').map(Number);
+    const slot = SLOTS.find(s => minutesToLabel(s.start) === timePart);
+    const endLabel = slot ? minutesToLabel(slot.end) : '';
+    return d + " " + MONTHS[m-1] + ", " + timePart + "–" + endLabel;
+  }
+
+  function openBookingModal(key){
+    pendingSlot = key;
+    selectedGender = null;
+    document.getElementById('inputProblem').value = '';
+    document.getElementById('inputAge').value = '';
+    document.querySelectorAll('.gender-opt').forEach(el=>el.classList.remove('active'));
+    ['fProblem','fGender','fAge'].forEach(id=>document.getElementById(id).classList.remove('invalid'));
+    document.getElementById('bookSubtitle').textContent = keyToLabel(key);
+    document.getElementById('bookOverlay').classList.add('open');
+  }
+  function closeBookingModal(){
+    document.getElementById('bookOverlay').classList.remove('open');
+    pendingSlot = null;
+  }
+
+  document.getElementById('genderRow').addEventListener('click', (e)=>{
+    const opt = e.target.closest('.gender-opt');
+    if (!opt) return;
+    document.querySelectorAll('.gender-opt').forEach(el=>el.classList.remove('active'));
+    opt.classList.add('active');
+    selectedGender = opt.getAttribute('data-val');
+    document.getElementById('fGender').classList.remove('invalid');
+  });
+
+  document.getElementById('cancelBook').addEventListener('click', closeBookingModal);
+  document.getElementById('bookOverlay').addEventListener('click', (e)=>{
+    if (e.target.id === 'bookOverlay') closeBookingModal();
+  });
+
+  document.getElementById('confirmBook').addEventListener('click', async ()=>{
+    const problem = document.getElementById('inputProblem').value.trim();
+    const age = document.getElementById('inputAge').value;
+    let ok = true;
+
+    if (!problem){ document.getElementById('fProblem').classList.add('invalid'); ok=false; }
+    else document.getElementById('fProblem').classList.remove('invalid');
+
+    if (!selectedGender){ document.getElementById('fGender').classList.add('invalid'); ok=false; }
+
+    const ageNum = Number(age);
+    if (!age || ageNum < 1 || ageNum > 120){ document.getElementById('fAge').classList.add('invalid'); ok=false; }
+    else document.getElementById('fAge').classList.remove('invalid');
+
+    if (!ok) return;
+
+    // защита от гонки: перепроверяем перед записью
+    await loadBookings();
+    if (bookings[pendingSlot]){
+      showToast('Это время только что заняли — выберите другое');
+      closeBookingModal();
+      renderCalendar();
+      return;
+    }
+
+    bookings[pendingSlot] = {
+      clientId,
+      problem,
+      gender: selectedGender,
+      age: ageNum,
+      price: CONFIG.price,
+      createdAt: Date.now()
+    };
+
+    document.getElementById('confirmBook').textContent = 'Сохранение…';
+    document.getElementById('confirmBook').disabled = true;
+    await saveBookings();
+    document.getElementById('confirmBook').textContent = 'Записаться';
+    document.getElementById('confirmBook').disabled = false;
+
+    closeBookingModal();
+    renderCalendar();
+    showToast('Вы записаны. Ждём вас!');
+  });
+
+  /* =========================================================
+     MY BOOKING MODAL
+  ========================================================= */
+  function openMyBookingModal(key){
+    openMyKey = key;
+    const b = bookings[key];
+    if (!b) return;
+    document.getElementById('mySubtitle').textContent = keyToLabel(key);
+    document.getElementById('myDetails').innerHTML = `
+      <div class="my-detail-row"><span>Проблема</span><span>${escapeHtml(b.problem)}</span></div>
+      <div class="my-detail-row"><span>Пол</span><span>${escapeHtml(b.gender)}</span></div>
+      <div class="my-detail-row"><span>Возраст</span><span>${escapeHtml(String(b.age))}</span></div>
+    `;
+    document.getElementById('myOverlay').classList.add('open');
+  }
+  function closeMyModal(){
+    document.getElementById('myOverlay').classList.remove('open');
+    openMyKey = null;
+  }
+  function escapeHtml(s){
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  document.getElementById('closeMy').addEventListener('click', closeMyModal);
+  document.getElementById('myOverlay').addEventListener('click', (e)=>{
+    if (e.target.id === 'myOverlay') closeMyModal();
+  });
+  document.getElementById('cancelMyBooking').addEventListener('click', async ()=>{
+    if (!openMyKey) return;
+    const btn = document.getElementById('cancelMyBooking');
+    btn.textContent = 'Отмена записи…';
+    btn.disabled = true;
+    delete bookings[openMyKey];
+    await saveBookings();
+    btn.textContent = 'Отменить запись';
+    btn.disabled = false;
+    closeMyModal();
+    renderCalendar();
+    showToast('Запись отменена');
+  });
+
+  /* =========================================================
+     MONTH NAV
+  ========================================================= */
+  document.getElementById('prevMonth').addEventListener('click', ()=>{
+    viewMonth--; if (viewMonth<0){ viewMonth=11; viewYear--; }
+    renderCalendar();
+  });
+  document.getElementById('nextMonth').addEventListener('click', ()=>{
+    viewMonth++; if (viewMonth>11){ viewMonth=0; viewYear++; }
+    renderCalendar();
+  });
+
+  /* =========================================================
+     INIT
+  ========================================================= */
+  async function init(){
+    renderStatic();
+    await initClientId();
+    await loadBookings();
+    renderCalendar();
+
+    // лёгкий поллинг, чтобы видеть новые записи других посетителей
+    setInterval(async ()=>{
+      await loadBookings();
+      renderCalendar();
+    }, 20000);
+  }
+
+  init();
+
+})();
+</script>
+</body>
+</html>
